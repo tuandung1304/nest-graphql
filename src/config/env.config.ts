@@ -3,6 +3,9 @@ import { z } from 'zod';
 
 export const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
+  FIRESTORE_PROJECT_ID: z.string(),
+  FIRESTORE_PRIVATE_KEY: z.string(),
+  FIRESTORE_CLIENT_EMAIL: z.string(),
 });
 
 export type EnvSchema = z.infer<typeof envSchema>;
