@@ -1,3 +1,4 @@
+import { CollectionReference } from '@google-cloud/firestore';
 import {
   Args,
   ID,
@@ -11,33 +12,23 @@ import { Customer } from './entities/customer.entity';
 
 @Resolver(() => Customer)
 export class CustomersResolver {
-  private readonly customerCollection: FirebaseFirestore.CollectionReference<Customer>;
+  private readonly collection: CollectionReference<Customer, Customer>;
 
   constructor(private readonly firestoreService: FirestoreService) {
-    this.customerCollection = this.firestoreService
-      .collection('members')
-      .withConverter({
-        toFirestore: (customer: Customer) => customer,
-        fromFirestore: (snap) => ({ id: snap.id, ...snap.data() }) as Customer,
-      });
+    this.collection = this.firestoreService.collection('members');
   }
 
   @Query(() => Customer, { name: 'customer' })
-  findOne(@Args('id', { type: () => ID }) id: string): Customer {
-    return {
-      id,
-      email: 'john@gmail.com',
-      firstName: 'John',
-      lastName: 'Doe',
-      phone: '0123456789',
-    };
+  async findOne(@Args('id', { type: () => ID }) id: string) {
+    const customer = await this.collection.doc(id).get();
+
+    return customer.data();
   }
 
   @Query(() => [Customer], { name: 'customers' })
   async findMany() {
-    const snapshot = await this.customerCollection.limit(10).get();
-    const test = snapshot.docs.map((doc) => doc.data());
-    return test;
+    const snapshot = await this.collection.limit(10).get();
+    return snapshot.docs.map((doc) => doc.data());
   }
 
   @ResolveField(() => String, { description: 'The full name of the customer' })

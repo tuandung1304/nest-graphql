@@ -1,4 +1,9 @@
-import { Firestore } from '@google-cloud/firestore';
+import {
+  CollectionReference,
+  DocumentData,
+  Firestore,
+  QueryDocumentSnapshot,
+} from '@google-cloud/firestore';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvSchema } from 'src/config/env.config';
@@ -14,6 +19,18 @@ export class FirestoreService extends Firestore {
           .get<string>('FIRESTORE_PRIVATE_KEY')
           ?.replace(/\\n/g, '\n'),
       },
+    });
+  }
+
+  collection<T extends DocumentData>(
+    collectionPath: string,
+  ): CollectionReference<T, T> {
+    return super.collection(collectionPath).withConverter({
+      toFirestore: (data: T) => data,
+      fromFirestore: (snap: QueryDocumentSnapshot<T>) => ({
+        id: snap.id,
+        ...snap.data(),
+      }),
     });
   }
 }
