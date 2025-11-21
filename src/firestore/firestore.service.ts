@@ -6,6 +6,7 @@ import {
 } from '@google-cloud/firestore';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { convertTimestamps } from 'src/common/convertTimestamps';
 import { EnvSchema } from 'src/config/env.config';
 
 @Injectable()
@@ -29,7 +30,7 @@ export class FirestoreService extends Firestore {
       toFirestore: (data: T) => data,
       fromFirestore: (snap: QueryDocumentSnapshot<T>) => ({
         id: snap.id,
-        ...snap.data(),
+        ...(convertTimestamps(snap.data()) as T),
       }),
     });
   }
