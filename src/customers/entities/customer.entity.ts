@@ -5,6 +5,9 @@ export class Customer {
   @Field(() => ID, { description: 'The id of the customer' })
   id: string;
 
+  @Field(() => String, { description: 'The shop id of the customer' })
+  shopId: string;
+
   @Field(() => String, { description: 'The first name of the customer' })
   firstName: string;
 
@@ -16,4 +19,7 @@ export class Customer {
 
   @Field(() => String, { description: 'The phone of the customer' })
   phone: string;
+
+  @Field(() => String, { description: 'The created at of the customer' })
+  createdAt?: Date;
 }

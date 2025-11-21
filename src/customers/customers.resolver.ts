@@ -1,38 +1,31 @@
-import { CollectionReference } from '@google-cloud/firestore';
+import { Args, ID, Query, Resolver } from '@nestjs/graphql';
+import { ShopId } from 'src/common/decorators/shopId.decorator';
 import {
-  Args,
-  ID,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
-import { FirestoreService } from 'src/firestore/firestore.service';
+  RelayConnection,
+  RelayPaginationArgs,
+} from 'src/common/graphql/relay-connection.factory';
+import { CustomersService } from './customers.service';
 import { Customer } from './entities/customer.entity';
+
+const CustomerConnection = RelayConnection(Customer);
 
 @Resolver(() => Customer)
 export class CustomersResolver {
-  private readonly collection: CollectionReference<Customer, Customer>;
+  constructor(private readonly customersService: CustomersService) {}
 
-  constructor(private readonly firestoreService: FirestoreService) {
-    this.collection = this.firestoreService.collection('members');
+  @Query(() => Customer, { name: 'customer', nullable: true })
+  async findOne(
+    @Args('id', { type: () => ID }) id: string,
+    @ShopId() shopId: string,
+  ) {
+    return this.customersService.findById(id, shopId);
   }
 
-  @Query(() => Customer, { name: 'customer' })
-  async findOne(@Args('id', { type: () => ID }) id: string) {
-    const customer = await this.collection.doc(id).get();
-
-    return customer.data();
-  }
-
-  @Query(() => [Customer], { name: 'customers' })
-  async findMany() {
-    const snapshot = await this.collection.limit(10).get();
-    return snapshot.docs.map((doc) => doc.data());
-  }
-
-  @ResolveField(() => String, { description: 'The full name of the customer' })
-  fullName(@Parent() customer: Customer): string {
-    return `${customer.firstName} ${customer.lastName}`;
+  @Query(() => CustomerConnection, { name: 'customers' })
+  async findMany(
+    @Args() pagination: RelayPaginationArgs,
+    @ShopId() shopId: string,
+  ) {
+    return this.customersService.findMany(pagination, shopId);
   }
 }
