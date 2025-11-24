@@ -1,25 +1,74 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+
+export enum CustomerType {
+  CUSTOMER = 'customer',
+  GUEST = 'guest',
+  ANONYMOUS = 'anonymous',
+}
+
+export enum Channel {
+  ONLINE_STORE = 'online store',
+  EMAIL = 'email',
+  WHATSAPP = 'whatsapp',
+  FACEBOOK = 'facebook',
+  INSTAGRAM = 'instagram',
+}
 
 @ObjectType()
 export class Customer {
-  @Field(() => ID, { description: 'The id of the customer' })
+  @Field(() => ID)
   id: string;
 
-  @Field(() => String, { description: 'The shop id of the customer' })
+  @Field()
   shopId: string;
 
-  @Field(() => String, { description: 'The first name of the customer' })
-  firstName: string;
+  @Field({ nullable: true })
+  shopifyCustomerId?: string;
 
-  @Field(() => String, { description: 'The last name of the customer' })
-  lastName: string;
+  @Field()
+  firstName?: string;
 
-  @Field(() => String, { description: 'The email of the customer' })
-  email: string;
+  @Field({ nullable: true })
+  lastName?: string;
 
-  @Field(() => String, { description: 'The phone of the customer' })
-  phone: string;
+  @Field({ nullable: true })
+  email?: string;
 
-  @Field(() => String, { description: 'The created at of the customer' })
+  @Field({ nullable: true })
+  phone?: string;
+
+  @Field({ nullable: true })
+  ipLocation?: string;
+
+  @Field({ nullable: true })
+  ipAddress?: string;
+
+  @Field(() => CustomerType)
+  type?: CustomerType;
+
+  @Field(() => [Channel])
+  channels?: Channel[];
+
+  @Field(() => Int)
+  ordersCount?: number;
+
+  @Field()
+  totalSpent?: number;
+
+  @Field({ nullable: true })
   createdAt?: Date;
+
+  @Field({ nullable: true })
+  updatedAt?: Date;
+
+  @Field({ nullable: true })
+  lastChatAt?: Date;
 }
+
+registerEnumType(CustomerType, {
+  name: 'CustomerType',
+});
+
+registerEnumType(Channel, {
+  name: 'Channel',
+});
