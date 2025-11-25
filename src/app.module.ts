@@ -13,7 +13,7 @@ import { FirestoreModule } from './firestore/firestore.module';
     EnvModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: true,
+      autoSchemaFile: 'src/schema.graphql',
       graphiql: true,
     }),
     CustomersModule,
